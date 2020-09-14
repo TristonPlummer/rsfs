@@ -102,6 +102,15 @@ namespace rsfs
             return entryCount_;
         }
 
+        /**
+         * Get the whirlpool digest of this index.
+         * @return  The digest.
+         */
+        [[nodiscard]] std::array<char, WHIRLPOOL_SIZE> whirlpool() const
+        {
+            return whirlpoolDigest_;
+        }
+
     private:
         /**
          * The stream to this index's metadata file.
@@ -142,6 +151,11 @@ namespace rsfs
          * If archives in this index contain a whirlpool digest.
          */
         bool whirlpool_{ false };
+
+        /**
+         * The whirlpool digest of this index's data.
+         */
+        std::array<char, WHIRLPOOL_SIZE> whirlpoolDigest_ { 0 };
 
         /**
          * The map of archive ids to the archive instance.

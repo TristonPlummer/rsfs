@@ -3,6 +3,7 @@
 
 #include <glog/logging.h>
 
+#include <crypto++/whrlpool.h>
 #include <cstring>
 
 using namespace rsfs;
@@ -159,6 +160,11 @@ void IndexFile::load(RSBuffer& buf)
     // Create the archives
     for (auto&& archive: archiveData)
         archives_[archive.id] = new Archive(archive);
+
+    // Calculate the whirlpool digest
+    CryptoPP::Whirlpool whirlpool;
+    whirlpool.Update(reinterpret_cast<const byte*>(buf.begin()), buf.getSize());
+    whirlpool.Final(reinterpret_cast<byte*>(whirlpoolDigest_.data()));
 }
 
 /**

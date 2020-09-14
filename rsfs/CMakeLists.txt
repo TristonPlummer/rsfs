@@ -17,6 +17,7 @@ set_target_properties(rsfs PROPERTIES LINKER_LANGUAGE CXX)
 
 # Link the library
 target_link_libraries(rsfs
+        ${CRYPTOPP_LIBRARY}
         ${GLOG_LIBRARY}
         ${Boost_LIBRARIES})
 
