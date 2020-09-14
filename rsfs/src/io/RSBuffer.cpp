@@ -102,6 +102,18 @@ void RSBuffer::writeBytes(boost::iterator_range<const char*> range)
 }
 
 /**
+ * Writes an integer value to the buffer.
+ * @param value The value to write.
+ */
+void RSBuffer::writeInt(int32_t value)
+{
+    writeByte((value >> 24u) & 0xFFu);
+    writeByte((value >> 16u) & 0xFFu);
+    writeByte((value >> 8u) & 0xFFu);
+    writeByte(value & 0xFFu);
+}
+
+/**
  * Reads a single byte from the buffer.
  * @return  The value.
  */

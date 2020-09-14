@@ -1,8 +1,8 @@
 #pragma once
-
 #include <boost/range/iterator_range.hpp>
 
 #include <fstream>
+#include <sstream>
 #include <vector>
 
 namespace rsfs
@@ -23,7 +23,7 @@ namespace rsfs
          * Initialises an empty buffer with a fixed size.
          * @param size  The desired size of the buffer.
          */
-        explicit RSBuffer(size_t size);
+        explicit RSBuffer(size_t size = 512);
 
         /**
          * Initialises a buffer from an array.
@@ -68,6 +68,12 @@ namespace rsfs
          * @param range The range of bytes.
          */
         void writeBytes(boost::iterator_range<const char*> range);
+
+        /**
+         * Writes an integer to the buffer.
+         * @param value The value to write.
+         */
+        void writeInt(int32_t value);
 
         /**
          * Gets the value at the current offset, but doesn't advance the reader.

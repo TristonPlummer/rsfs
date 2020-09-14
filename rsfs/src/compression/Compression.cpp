@@ -7,9 +7,6 @@
 #include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
-#include <glog/logging.h>
-
-#include <sstream>
 
 using namespace rsfs;
 
