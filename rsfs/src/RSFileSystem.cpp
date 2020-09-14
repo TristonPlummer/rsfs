@@ -1,9 +1,11 @@
 #include <rsfs/RSFileSystem.hpp>
 #include <rsfs/compression/Compression.hpp>
 
+#include <boost/crc.hpp>
 #include <glog/logging.h>
 
 #include <cassert>
+#include <crypto++/whrlpool.h>
 #include <sstream>
 
 using namespace rsfs;
@@ -109,4 +111,82 @@ IndexFile& RSFileSystem::getIndex(size_t id) const
     auto* idx = indices_.at(id);
     assert(idx);
     return *idx;
+}
+
+/**
+ * Builds the checksum table for this file system.
+ * @param whirlpool If we should calculate the whirlpool digests.
+ */
+void RSFileSystem::buildChecksumTable(bool whirlpool)
+{
+    auto entryCount = metadataIndex_->entryCount();
+
+    // Calculate the length of the checksum table
+    auto length = 1 + entryCount * 8;
+    if (whirlpool)
+        length += 1 + WHIRLPOOL_SIZE + (entryCount * WHIRLPOOL_SIZE);
+
+    // The outgoing buffer to write to
+    RSBuffer out(length);
+
+    // If we are to include a whirlpool digest, the first byte must represent the number of entries
+    out.writeByte(entryCount);
+
+    // Encode the individual index entries
+    for (auto i = 0; i < entryCount; i++)
+    {
+        auto buf  = readIndex(i);
+        auto& idx = getIndex(i);
+
+        // Generate the checksum of the buffer.
+        boost::crc_32_type checksum;
+        checksum.process_block(buf.begin(), buf.end());
+
+        // Write the checksum and revision
+        out.writeInt(checksum.checksum());
+        out.writeInt(idx.revision());
+
+        // Include the digest of the compressed index data.
+        if (whirlpool)
+        {
+            // The digest of the index buffer.
+            std::array<char, WHIRLPOOL_SIZE> digest{ 0 };
+
+            // Calculate the whirlpool digest.
+            CryptoPP::Whirlpool hash;
+            hash.Update(reinterpret_cast<const byte*>(buf.begin()), buf.getSize());
+            hash.Final(reinterpret_cast<byte*>(digest.data()));
+
+            // Write the digest
+            out.writeBytes(digest);
+        }
+    }
+
+    // Calculate a digest of the checksum table
+    if (whirlpool)
+    {
+        // The digest of the table so far
+        std::array<char, WHIRLPOOL_SIZE> digest{ 0 };
+
+        // Calculate the digest
+        CryptoPP::Whirlpool hash;
+        hash.Update(reinterpret_cast<const byte*>(out.begin()), out.getSize());
+        hash.Final(reinterpret_cast<byte*>(digest.data()));
+
+        // Write the digest of the checksum table
+        out.writeByte(0);
+        out.writeBytes(digest);
+    }
+
+    // Save the checksum table
+    checksumTable_ = out;
+}
+
+/**
+ * Get the checksum table for this file system.
+ * @return  The checksum table
+ */
+RSBuffer RSFileSystem::checksumTable() const
+{
+    return checksumTable_;
 }

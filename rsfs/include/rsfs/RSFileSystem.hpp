@@ -36,6 +36,18 @@ namespace rsfs
          */
         [[nodiscard]] IndexFile& getIndex(size_t id) const;
 
+        /**
+         * Builds the checksum table for this file system.
+         * @param whirlpool If we should include a whirlpool digest in this checksum table.
+         */
+        void buildChecksumTable(bool whirlpool = true);
+
+        /**
+         * Get the checksum table for this file system.
+         * @return  The checksum table.
+         */
+        [[nodiscard]] RSBuffer checksumTable() const;
+
     private:
         /**
          * The file stream to the asset data file.
@@ -68,5 +80,10 @@ namespace rsfs
          * The array of indices.
          */
         std::vector<IndexFile*> indices_;
+
+        /**
+         * The checksum table buffer.
+         */
+        RSBuffer checksumTable_{ 0 };
     };
 }
