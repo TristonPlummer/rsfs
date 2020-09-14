@@ -76,6 +76,15 @@ namespace rsfs
         }
 
         /**
+         * Gets the revision of this index.
+         * @return  The revision.
+         */
+        [[nodiscard]] size_t revision() const
+        {
+            return revision_;
+        }
+
+        /**
          * Gets the number of archives in this index.
          * @return  The number of archives.
          */
