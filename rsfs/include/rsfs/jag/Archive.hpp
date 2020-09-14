@@ -49,6 +49,15 @@ namespace rsfs
         }
 
         /**
+         * Gets the id of this archive.
+         * @return  The archive id.
+         */
+        [[nodiscard]] size_t id() const
+        {
+            return data_.id;
+        }
+
+        /**
          * Gets the name hash of this archive.
          * @return  The name hash.
          */
@@ -73,6 +82,15 @@ namespace rsfs
         [[nodiscard]] size_t revision() const
         {
             return data_.revision;
+        }
+
+        /**
+         * Gets the whirlpool digest of this archive.
+         * @return  The whirlpool digest.
+         */
+        [[nodiscard]] std::array<char, WHIRLPOOL_SIZE> whirlpool() const
+        {
+            return data_.whirlpool;
         }
 
     private:
